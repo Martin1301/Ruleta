@@ -2,39 +2,43 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Ruleta Dayana <3</title>
+    <title>Ruleta de Dayana <3</title>
 
     <style>
         * {
             box-sizing: border-box;
         }
 
+        html,
         body {
             margin: 0;
-            min-height: 100vh;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
             font-family: Arial, Helvetica, sans-serif;
             background: #fffafa;
+            color: #555;
+        }
+
+        body {
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #555;
         }
 
         .app {
             width: 100%;
             max-width: 1100px;
-            min-height: 700px;
-            padding: 35px;
+            min-height: 100vh;
+            padding: 25px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-
-        /* =========================
-           PANTALLAS
-        ========================= */
 
         .screen {
             width: 100%;
@@ -44,16 +48,17 @@
             display: none !important;
         }
 
-        /* =========================
-           LOGIN
-        ========================= */
+        /* ==================================================
+           LOGIN / CONFIGURACIÓN
+        ================================================== */
 
         .login-card,
         .setup-card {
+            width: 100%;
             max-width: 500px;
             margin: auto;
-            background: white;
-            padding: 40px;
+            background: #fff;
+            padding: 35px;
             border-radius: 25px;
             box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
             text-align: center;
@@ -61,25 +66,25 @@
 
         .login-card h1,
         .setup-card h1 {
-            color: #ef8b91;
-            margin-bottom: 10px;
+            margin: 0 0 10px;
+            color: #ed858b;
+            font-size: 28px;
         }
 
         .login-card p,
         .setup-card p {
             color: #999;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         input {
             width: 100%;
-            padding: 15px 18px;
+            padding: 14px 16px;
             border: 2px solid #f3d2d5;
             border-radius: 12px;
             outline: none;
             font-size: 16px;
             margin-bottom: 15px;
-            transition: 0.2s;
         }
 
         input:focus {
@@ -97,12 +102,16 @@
             transition: 0.2s;
         }
 
+        button:disabled {
+            cursor: not-allowed;
+        }
+
         .primary-btn {
             background: #ef8b91;
             color: white;
         }
 
-        .primary-btn:hover {
+        .primary-btn:hover:not(:disabled) {
             background: #e97980;
             transform: translateY(-2px);
         }
@@ -114,9 +123,9 @@
             min-height: 20px;
         }
 
-        /* =========================
-           TEMAS
-        ========================= */
+        /* ==================================================
+           INPUTS DE TEMAS
+        ================================================== */
 
         #topicsContainer {
             margin-top: 20px;
@@ -125,13 +134,14 @@
 
         .topic-row {
             display: flex;
-            gap: 10px;
             align-items: center;
+            gap: 10px;
             margin-bottom: 10px;
         }
 
         .topic-number {
-            min-width: 30px;
+            flex: 0 0 30px;
+            width: 30px;
             height: 30px;
             border-radius: 50%;
             background: #f7b5b9;
@@ -146,9 +156,13 @@
             margin: 0;
         }
 
-        /* =========================
-           RUEDA
-        ========================= */
+        #prepareButton {
+            margin-top: 15px;
+        }
+
+        /* ==================================================
+           JUEGO
+        ================================================== */
 
         .game-container {
             width: 100%;
@@ -163,7 +177,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .title {
@@ -172,74 +186,100 @@
             font-weight: bold;
         }
 
+        /* ==================================================
+           CRONÓMETRO
+        ================================================== */
+
         .timer-box {
             background: #ef6e78;
             color: white;
-            padding: 12px 22px;
-            border-radius: 10px;
+            padding: 10px 20px;
+            border-radius: 12px;
             box-shadow: 0 6px 15px rgba(239, 110, 120, 0.25);
             text-align: center;
         }
 
         .timer-label {
-            font-size: 11px;
+            font-size: 10px;
             opacity: 0.8;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         #timer {
             font-family: "Courier New", monospace;
-            font-size: 30px;
+            font-size: 29px;
             font-weight: bold;
             letter-spacing: 2px;
         }
 
-        .wheel-area {
-            position: relative;
-            width: 520px;
-            height: 520px;
-            max-width: 85vw;
-            max-height: 85vw;
-        }
+        /* ==================================================
+           RUEDA
+        ================================================== */
 
-        /* Punta superior */
+        .wheel-area {
+            /*
+             * Se adapta automáticamente al teléfono.
+             */
+            width: min(520px, 90vw);
+            aspect-ratio: 1 / 1;
+            position: relative;
+        }
 
         .pointer {
             position: absolute;
-            top: -5px;
+            top: -2px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 10;
+            z-index: 30;
+
             width: 0;
             height: 0;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-top: 55px solid #ef858b;
+
+            border-left: clamp(12px, 3vw, 18px) solid transparent;
+            border-right: clamp(12px, 3vw, 18px) solid transparent;
+            border-top: clamp(35px, 8vw, 55px) solid #ef858b;
         }
 
         .pointer::before {
             content: "";
             position: absolute;
-            width: 24px;
-            height: 12px;
+
+            width: clamp(20px, 5vw, 28px);
+            height: clamp(9px, 2vw, 13px);
+
             background: #ef858b;
-            top: -55px;
-            left: -12px;
+
+            top: clamp(-55px, -8vw, -35px);
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .wheel {
             position: absolute;
-            inset: 20px;
+
+            inset: 4%;
+
             border-radius: 50%;
-            border: 10px solid #ef858b;
+
+            border: clamp(7px, 2vw, 10px) solid #ef858b;
+
             overflow: hidden;
+
             background: #f9cccc;
+
             box-shadow:
                 0 10px 20px rgba(0, 0, 0, 0.08),
                 inset 0 0 0 2px rgba(255,255,255,0.5);
 
-            transition: transform 1s ease;
+            /*
+             * La animación se controla desde JavaScript.
+             */
+            transition: transform 5s cubic-bezier(0.12, 0.75, 0.12, 1);
         }
+
+        /* ==================================================
+           SEGMENTOS
+        ================================================== */
 
         .wheel-segments {
             position: absolute;
@@ -247,72 +287,144 @@
             border-radius: 50%;
         }
 
-        .segment {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            left: 50%;
-            top: 50%;
-            transform-origin: 0% 0%;
-            border-right: 1px solid rgba(255,255,255,0.5);
-            border-bottom: 1px solid rgba(255,255,255,0.5);
-        }
-
-        /* Centro */
-
-        .center {
-            position: absolute;
-            width: 55px;
-            height: 55px;
-            background: #ef858b;
-            border-radius: 50%;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 5;
-            box-shadow: 0 0 0 4px rgba(255,255,255,0.4);
-        }
-
-        /* =========================
-           TEXTOS DE LA RULETA
-        ========================= */
+        /* ==================================================
+           NOMBRES DE TEMAS
+        ================================================== */
 
         .topic-label {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            transform-origin: center;
-            width: 120px;
+
+            /*
+             * El tamaño se adapta al dispositivo.
+             */
+            width: clamp(65px, 18vw, 120px);
+
             text-align: center;
-            color: #ef858b;
+
+            color: #e98288;
+
             font-weight: bold;
-            font-size: 15px;
-            z-index: 3;
+
+            font-size: clamp(9px, 2.6vw, 15px);
+
+            line-height: 1.15;
+
+            z-index: 4;
+
+            /*
+             * Evita que un texto demasiado largo
+             * rompa el diseño.
+             */
+            overflow-wrap: anywhere;
+
             pointer-events: none;
+
+            /*
+             * Hace que el texto sea más visible.
+             */
+            text-shadow:
+                0 1px 0 rgba(255,255,255,0.6);
         }
 
-        /* =========================
+        /* ==================================================
+           CENTRO DE LA RULETA
+        ================================================== */
+
+        .center {
+            position: absolute;
+
+            width: clamp(42px, 10vw, 58px);
+            height: clamp(42px, 10vw, 58px);
+
+            background: #ef858b;
+
+            border-radius: 50%;
+
+            left: 50%;
+            top: 50%;
+
+            transform: translate(-50%, -50%);
+
+            z-index: 10;
+
+            box-shadow:
+                0 0 0 4px rgba(255,255,255,0.45);
+        }
+
+        /* ==================================================
+           TEMA SELECCIONADO
+        ================================================== */
+
+        .selected-topic {
+            /*
+             * Está fuera de la rueda.
+             * Así no rota y no interfiere con ella.
+             */
+            width: min(90vw, 600px);
+
+            min-height: 70px;
+
+            margin-top: 15px;
+
+            padding: 15px 25px;
+
+            border-radius: 18px;
+
+            background: white;
+
+            border: 2px solid #f3c6c9;
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.07);
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            text-align: center;
+        }
+
+        .selected-topic-label {
+            color: #aaa;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        #selectedTopic {
+            color: #e97980;
+            font-size: clamp(20px, 5vw, 30px);
+            font-weight: bold;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+        }
+
+        /* ==================================================
            CONTROLES
-        ========================= */
+        ================================================== */
 
         .controls {
-            margin-top: 25px;
+            margin-top: 18px;
+
             display: flex;
-            gap: 15px;
+
             justify-content: center;
+
             align-items: center;
         }
 
         #startButton {
             min-width: 180px;
             font-size: 18px;
-            padding: 15px 35px;
+            padding: 14px 35px;
         }
 
         .status {
-            margin-top: 15px;
+            margin-top: 12px;
             color: #999;
-            font-size: 15px;
+            font-size: 14px;
             text-align: center;
         }
 
@@ -321,37 +433,90 @@
             color: #ed858b;
         }
 
-        /* =========================
-           RESPONSIVE
-        ========================= */
+        /* ==================================================
+           CELULARES
+        ================================================== */
 
-        @media (max-width: 650px) {
+        @media (max-width: 600px) {
+
+            body {
+                align-items: flex-start;
+            }
 
             .app {
-                padding: 20px;
+                padding: 18px 12px 30px;
             }
 
             .top-bar {
                 flex-direction: column;
-                gap: 15px;
+                gap: 12px;
+                margin-bottom: 15px;
             }
 
             .title {
                 font-size: 23px;
             }
 
-            .wheel-area {
-                width: 400px;
-                height: 400px;
+            .timer-box {
+                padding: 8px 18px;
             }
 
             #timer {
-                font-size: 25px;
+                font-size: 24px;
+            }
+
+            .wheel-area {
+                width: min(92vw, 430px);
+            }
+
+            .selected-topic {
+                margin-top: 12px;
+                padding: 13px 18px;
+                min-height: 65px;
+            }
+
+            #selectedTopic {
+                font-size: 21px;
+            }
+
+            #startButton {
+                width: 220px;
+            }
+        }
+
+        /* ==================================================
+           CELULARES MUY PEQUEÑOS
+        ================================================== */
+
+        @media (max-width: 380px) {
+
+            .app {
+                padding: 12px 8px 25px;
+            }
+
+            .title {
+                font-size: 20px;
+            }
+
+            .wheel-area {
+                width: 94vw;
             }
 
             .topic-label {
-                width: 90px;
-                font-size: 11px;
+                width: 58px;
+                font-size: 8px;
+            }
+
+            .selected-topic {
+                width: 94vw;
+            }
+
+            #selectedTopic {
+                font-size: 19px;
+            }
+
+            #startButton {
+                width: 200px;
             }
         }
     </style>
@@ -361,9 +526,9 @@
 
 <div class="app">
 
-    <!-- =========================
+    <!-- ==================================================
          LOGIN
-    ========================== -->
+    ================================================== -->
 
     <section id="loginScreen" class="screen">
 
@@ -384,7 +549,7 @@
 
             <button
                 class="primary-btn"
-                onclick="verifyPassword()"
+                id="loginButton"
             >
                 Ingresar
             </button>
@@ -396,9 +561,9 @@
     </section>
 
 
-    <!-- =========================
+    <!-- ==================================================
          CONFIGURACIÓN
-    ========================== -->
+    ================================================== -->
 
     <section id="setupScreen" class="screen hidden">
 
@@ -407,7 +572,7 @@
             <h1>🎯 Configurar temas</h1>
 
             <p>
-                ¿Cuántos temas quieres agregar a la ruleta?
+                ¿Cuántos temas quieres agregar?
             </p>
 
             <input
@@ -420,7 +585,7 @@
 
             <button
                 class="primary-btn"
-                onclick="createTopicInputs()"
+                id="createTopicsButton"
             >
                 Continuar
             </button>
@@ -430,7 +595,6 @@
             <button
                 id="prepareButton"
                 class="primary-btn hidden"
-                onclick="prepareGame()"
             >
                 Preparar ruleta
             </button>
@@ -442,9 +606,9 @@
     </section>
 
 
-    <!-- =========================
+    <!-- ==================================================
          JUEGO
-    ========================== -->
+    ================================================== -->
 
     <section id="gameScreen" class="screen hidden">
 
@@ -471,23 +635,20 @@
             </div>
 
 
+            <!-- RULETA -->
+
             <div class="wheel-area">
 
                 <div class="pointer"></div>
 
-                <div
-                    id="wheel"
-                    class="wheel"
-                >
+                <div id="wheel" class="wheel">
 
                     <div
                         id="wheelSegments"
-                        class="wheel-segments"
-                    ></div>
+                        class="wheel-segments">
+                    </div>
 
-                    <div
-                        id="topicLabels"
-                    ></div>
+                    <div id="topicLabels"></div>
 
                     <div class="center"></div>
 
@@ -496,13 +657,29 @@
             </div>
 
 
+            <!-- TEMA SELECCIONADO -->
+
+            <div
+                id="selectedTopicBox"
+                class="selected-topic hidden">
+
+                <div class="selected-topic-label">
+                    Tema seleccionado
+                </div>
+
+                <div id="selectedTopic">
+                </div>
+
+            </div>
+
+
+            <!-- BOTÓN -->
+
             <div class="controls">
 
                 <button
                     id="startButton"
-                    class="primary-btn"
-                    onclick="startCycle()"
-                >
+                    class="primary-btn">
                     Iniciar
                 </button>
 
@@ -514,8 +691,7 @@
                 Estado:
                 <span
                     id="statusText"
-                    class="phase"
-                >
+                    class="phase">
                     Preparado
                 </span>
 
@@ -530,9 +706,9 @@
 
 <script>
 
-    /* =====================================================
+    /* ==================================================
        CONFIGURACIÓN
-    ===================================================== */
+    ================================================== */
 
     const PASSWORD = "<3";
 
@@ -551,10 +727,14 @@
 
     let running = false;
 
+    let selectedTopicIndex = -1;
 
-    /* =====================================================
+    let currentRotation = 0;
+
+
+    /* ==================================================
        ELEMENTOS
-    ===================================================== */
+    ================================================== */
 
     const loginScreen =
         document.getElementById("loginScreen");
@@ -583,10 +763,16 @@
     const topicLabels =
         document.getElementById("topicLabels");
 
+    const selectedTopicBox =
+        document.getElementById("selectedTopicBox");
 
-    /* =====================================================
-       CONTRASEÑA
-    ===================================================== */
+    const selectedTopicElement =
+        document.getElementById("selectedTopic");
+
+
+    /* ==================================================
+       LOGIN
+    ================================================== */
 
     function verifyPassword() {
 
@@ -615,24 +801,25 @@
     }
 
 
-    /* Enter para contraseña */
+    document
+        .getElementById("loginButton")
+        .addEventListener("click", verifyPassword);
+
 
     document
         .getElementById("passwordInput")
         .addEventListener("keydown", function(event) {
 
             if (event.key === "Enter") {
-
                 verifyPassword();
-
             }
 
         });
 
 
-    /* =====================================================
-       CREAR INPUTS DE TEMAS
-    ===================================================== */
+    /* ==================================================
+       CREAR INPUTS
+    ================================================== */
 
     function createTopicInputs() {
 
@@ -696,12 +883,14 @@
 
             input.type = "text";
 
-            input.className = "topic-input";
+            input.className =
+                "topic-input";
 
             input.placeholder =
                 `Tema ${i + 1}`;
 
-            input.autocomplete = "off";
+            input.autocomplete =
+                "off";
 
 
             row.appendChild(number);
@@ -718,9 +907,17 @@
     }
 
 
-    /* =====================================================
+    document
+        .getElementById("createTopicsButton")
+        .addEventListener(
+            "click",
+            createTopicInputs
+        );
+
+
+    /* ==================================================
        PREPARAR JUEGO
-    ===================================================== */
+    ================================================== */
 
     function prepareGame() {
 
@@ -739,16 +936,14 @@
             const value =
                 input.value.trim();
 
-            if (value !== "") {
-
-                topics.push(value);
-
-            }
+            topics.push(value);
 
         });
 
 
-        if (topics.length !== inputs.length) {
+        if (
+            topics.some(topic => topic === "")
+        ) {
 
             error.textContent =
                 "Debes ingresar todos los temas.";
@@ -769,14 +964,22 @@
         gameScreen.classList.remove("hidden");
 
 
-        resetTimer();
+        resetGame();
 
     }
 
 
-    /* =====================================================
+    document
+        .getElementById("prepareButton")
+        .addEventListener(
+            "click",
+            prepareGame
+        );
+
+
+    /* ==================================================
        CREAR RULETA
-    ===================================================== */
+    ================================================== */
 
     function createWheel() {
 
@@ -788,20 +991,14 @@
         const count =
             topics.length;
 
+        const segmentSize =
+            360 / count;
+
 
         const colors = [
             "#f7c8ca",
             "#fce3df"
         ];
-
-
-        /*
-         * Creamos los segmentos utilizando
-         * un conic-gradient.
-         */
-
-        const segmentSize =
-            360 / count;
 
 
         let gradient = "";
@@ -815,6 +1012,7 @@
             const end =
                 (i + 1) * segmentSize;
 
+
             gradient +=
                 `${colors[i % 2]} ${start}deg ${end}deg`;
 
@@ -825,13 +1023,17 @@
         }
 
 
+        /*
+         * La rueda empieza con el primer
+         * segmento arriba.
+         */
+
         wheel.style.background =
             `conic-gradient(from -90deg, ${gradient})`;
 
 
         /*
-         * Colocamos los nombres
-         * alrededor de la rueda.
+         * Creamos los textos.
          */
 
         topics.forEach((topic, index) => {
@@ -852,10 +1054,22 @@
                 90;
 
 
-            const radius =
-                topics.length <= 8
-                    ? 155
-                    : 165;
+            /*
+             * IMPORTANTE:
+             *
+             * Usamos porcentaje en lugar
+             * de píxeles fijos.
+             *
+             * Esto hace que funcione
+             * correctamente en celulares.
+             */
+
+            const radiusPercent =
+                count <= 8
+                    ? 34
+                    : count <= 12
+                        ? 35
+                        : 36;
 
 
             const radians =
@@ -863,22 +1077,30 @@
 
 
             const x =
-                Math.cos(radians) * radius;
+                50 +
+                Math.cos(radians) * radiusPercent;
 
 
             const y =
-                Math.sin(radians) * radius;
+                50 +
+                Math.sin(radians) * radiusPercent;
 
 
             label.style.left =
-                `calc(50% + ${x}px)`;
+                `${x}%`;
 
             label.style.top =
-                `calc(50% + ${y}px)`;
+                `${y}%`;
 
+
+            /*
+             * El texto NO se rota.
+             *
+             * Así siempre es legible.
+             */
 
             label.style.transform =
-                `translate(-50%, -50%) rotate(${angle + 90}deg)`;
+                "translate(-50%, -50%)";
 
 
             topicLabels.appendChild(label);
@@ -888,9 +1110,9 @@
     }
 
 
-    /* =====================================================
-       FORMATO DEL TEMPORIZADOR
-    ===================================================== */
+    /* ==================================================
+       FORMATO DEL TIEMPO
+    ================================================== */
 
     function formatTime(seconds) {
 
@@ -920,9 +1142,9 @@
     }
 
 
-    /* =====================================================
-       INICIAR CICLO
-    ===================================================== */
+    /* ==================================================
+       SELECCIONAR TEMA Y GIRAR RULETA
+    ================================================== */
 
     function startCycle() {
 
@@ -931,30 +1153,167 @@
         }
 
 
+        /*
+         * Ocultamos el tema anterior
+         * mientras gira nuevamente.
+         */
+
+        selectedTopicBox.classList.add("hidden");
+
+
+        /*
+         * Elegimos aleatoriamente el tema.
+         */
+
+        selectedTopicIndex =
+            Math.floor(
+                Math.random() * topics.length
+            );
+
+
+        const segmentSize =
+            360 / topics.length;
+
+
+        /*
+         * Calculamos el centro del segmento.
+         */
+
+        const segmentCenter =
+            selectedTopicIndex * segmentSize +
+            segmentSize / 2;
+
+
+        /*
+         * Queremos que el centro del segmento
+         * quede debajo de la flecha superior.
+         */
+
+        const targetRotation =
+            360 -
+            segmentCenter;
+
+
+        /*
+         * Damos varias vueltas antes
+         * de llegar al tema seleccionado.
+         */
+
+        const extraTurns =
+            360 * 5;
+
+
+        currentRotation +=
+            extraTurns +
+            targetRotation;
+
+
         running = true;
+
 
         startButton.disabled = true;
 
         startButton.style.opacity = "0.5";
 
 
+        statusText.textContent =
+            "Girando...";
+
+
+        /*
+         * Reiniciamos la transición.
+         */
+
+        wheel.style.transition =
+            "none";
+
+        wheel.style.transform =
+            `rotate(${currentRotation - extraTurns - targetRotation}deg)`;
+
+
+        /*
+         * Forzamos al navegador a
+         * reconocer el estado inicial.
+         */
+
+        wheel.offsetHeight;
+
+
+        wheel.style.transition =
+            "transform 5s cubic-bezier(0.12, 0.75, 0.12, 1)";
+
+
+        wheel.style.transform =
+            `rotate(${currentRotation}deg)`;
+
+
+        /*
+         * Esperamos a que termine
+         * la animación.
+         */
+
+        setTimeout(() => {
+
+            showSelectedTopic();
+
+        }, 5100);
+
+    }
+
+
+    /* ==================================================
+       MOSTRAR TEMA SELECCIONADO
+    ================================================== */
+
+    function showSelectedTopic() {
+
+        const selectedTopic =
+            topics[selectedTopicIndex];
+
+
+        /*
+         * Lo mostramos fuera de la rueda.
+         *
+         * Así nunca tapa los segmentos.
+         */
+
+        selectedTopicElement.textContent =
+            selectedTopic;
+
+
+        selectedTopicBox.classList.remove(
+            "hidden"
+        );
+
+
+        statusText.textContent =
+            "Tema seleccionado";
+
+
+        /*
+         * Ahora empieza el cronómetro.
+         */
+
+        startStudyTimer();
+
+    }
+
+
+    /* ==================================================
+       INICIAR 10 MINUTOS
+    ================================================== */
+
+    function startStudyTimer() {
+
         currentPhase = "study";
 
         currentTime = STUDY_TIME;
 
-
-        statusText.textContent =
-            "Estudiando";
-
-
         updateTimer();
 
 
-        /*
-         * Animación de la ruleta.
-         */
-
-        spinWheel();
+        statusText.textContent =
+            "Estudiando";
 
 
         startTimer();
@@ -962,9 +1321,9 @@
     }
 
 
-    /* =====================================================
+    /* ==================================================
        TEMPORIZADOR
-    ===================================================== */
+    ================================================== */
 
     function startTimer() {
 
@@ -992,9 +1351,9 @@
     }
 
 
-    /* =====================================================
-       FINALIZÓ TEMPORIZADOR
-    ===================================================== */
+    /* ==================================================
+       TERMINÓ EL TIEMPO
+    ================================================== */
 
     function timerFinished() {
 
@@ -1004,9 +1363,9 @@
         if (currentPhase === "study") {
 
             /*
-             * Terminó los 10 minutos.
-             * Ahora mostramos el botón Iniciar
-             * para comenzar los 2 minutos.
+             * Terminó 10 minutos.
+             *
+             * Preparamos los 2 minutos.
              */
 
             currentPhase = "break";
@@ -1014,12 +1373,14 @@
             currentTime = BREAK_TIME;
 
 
+            updateTimer();
+
+
             statusText.textContent =
                 "¡10 minutos terminados!";
 
 
-            timerElement.textContent =
-                formatTime(BREAK_TIME);
+            running = false;
 
 
             startButton.disabled = false;
@@ -1036,23 +1397,24 @@
         } else {
 
             /*
-             * Terminó los 2 minutos.
-             * Todo vuelve a comenzar.
+             * Terminó el descanso.
+             *
+             * Todo queda listo para
+             * volver a girar la ruleta.
              */
+
+            running = false;
 
             currentPhase = "study";
 
             currentTime = STUDY_TIME;
 
-            running = false;
+
+            updateTimer();
 
 
             statusText.textContent =
-                "¡Descanso terminado!";
-
-
-            timerElement.textContent =
-                formatTime(STUDY_TIME);
+                "Descanso terminado";
 
 
             startButton.disabled = false;
@@ -1065,14 +1427,24 @@
             startButton.onclick =
                 startCycle;
 
+
+            /*
+             * El tema anterior desaparece
+             * porque habrá uno nuevo.
+             */
+
+            selectedTopicBox.classList.add(
+                "hidden"
+            );
+
         }
 
     }
 
 
-    /* =====================================================
-       INICIAR DESCANSO
-    ===================================================== */
+    /* ==================================================
+       INICIAR 2 MINUTOS
+    ================================================== */
 
     function startBreak() {
 
@@ -1088,14 +1460,16 @@
         startButton.style.opacity = "0.5";
 
 
+        currentPhase = "break";
+
         currentTime = BREAK_TIME;
+
+
+        updateTimer();
 
 
         statusText.textContent =
             "Descanso";
-
-
-        updateTimer();
 
 
         startTimer();
@@ -1103,19 +1477,36 @@
     }
 
 
-    /* =====================================================
-       REINICIAR TEMPORIZADOR
-    ===================================================== */
+    /* ==================================================
+       REINICIAR
+    ================================================== */
 
-    function resetTimer() {
+    function resetGame() {
 
         clearInterval(timerInterval);
+
 
         currentPhase = "study";
 
         currentTime = STUDY_TIME;
 
         running = false;
+
+        currentRotation = 0;
+
+        selectedTopicIndex = -1;
+
+
+        wheel.style.transition =
+            "none";
+
+        wheel.style.transform =
+            "rotate(0deg)";
+
+
+        selectedTopicBox.classList.add(
+            "hidden"
+        );
 
 
         updateTimer();
@@ -1138,26 +1529,9 @@
     }
 
 
-    /* =====================================================
-       ANIMACIÓN DE RULETA
-    ===================================================== */
-
-    function spinWheel() {
-
-        const randomRotation =
-            360 * 5 +
-            Math.floor(Math.random() * 360);
-
-
-        wheel.style.transform =
-            `rotate(${randomRotation}deg)`;
-
-    }
-
-
-    /* =====================================================
+    /* ==================================================
        SONIDO AGRADABLE
-    ===================================================== */
+    ================================================== */
 
     function playPleasantSound() {
 
@@ -1176,143 +1550,81 @@
                 audioContext.currentTime;
 
 
-            /*
-             * Primera nota
-             */
-
-            const oscillator1 =
-                audioContext.createOscillator();
-
-            const gain1 =
-                audioContext.createGain();
-
-
-            oscillator1.type =
-                "sine";
-
-            oscillator1.frequency.setValueAtTime(
-                523.25,
-                now
-            );
-
-
-            gain1.gain.setValueAtTime(
-                0,
-                now
-            );
-
-            gain1.gain.linearRampToValueAtTime(
-                0.25,
-                now + 0.05
-            );
-
-            gain1.gain.exponentialRampToValueAtTime(
-                0.001,
-                now + 0.8
-            );
+            const notes = [
+                {
+                    frequency: 523.25,
+                    time: 0,
+                    duration: 0.8
+                },
+                {
+                    frequency: 659.25,
+                    time: 0.15,
+                    duration: 0.85
+                },
+                {
+                    frequency: 783.99,
+                    time: 0.3,
+                    duration: 0.9
+                }
+            ];
 
 
-            oscillator1.connect(gain1);
+            notes.forEach(note => {
 
-            gain1.connect(audioContext.destination);
+                const oscillator =
+                    audioContext.createOscillator();
 
-
-            oscillator1.start(now);
-
-            oscillator1.stop(now + 0.8);
-
-
-            /*
-             * Segunda nota
-             */
-
-            const oscillator2 =
-                audioContext.createOscillator();
-
-            const gain2 =
-                audioContext.createGain();
+                const gain =
+                    audioContext.createGain();
 
 
-            oscillator2.type =
-                "sine";
-
-            oscillator2.frequency.setValueAtTime(
-                659.25,
-                now + 0.15
-            );
+                oscillator.type =
+                    "sine";
 
 
-            gain2.gain.setValueAtTime(
-                0,
-                now + 0.15
-            );
-
-            gain2.gain.linearRampToValueAtTime(
-                0.22,
-                now + 0.2
-            );
-
-            gain2.gain.exponentialRampToValueAtTime(
-                0.001,
-                now + 1.0
-            );
+                oscillator.frequency.setValueAtTime(
+                    note.frequency,
+                    now + note.time
+                );
 
 
-            oscillator2.connect(gain2);
-
-            gain2.connect(audioContext.destination);
-
-
-            oscillator2.start(now + 0.15);
-
-            oscillator2.stop(now + 1.0);
+                gain.gain.setValueAtTime(
+                    0,
+                    now + note.time
+                );
 
 
-            /*
-             * Tercera nota
-             */
-
-            const oscillator3 =
-                audioContext.createOscillator();
-
-            const gain3 =
-                audioContext.createGain();
+                gain.gain.linearRampToValueAtTime(
+                    0.22,
+                    now + note.time + 0.05
+                );
 
 
-            oscillator3.type =
-                "sine";
-
-            oscillator3.frequency.setValueAtTime(
-                783.99,
-                now + 0.3
-            );
+                gain.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    now + note.time + note.duration
+                );
 
 
-            gain3.gain.setValueAtTime(
-                0,
-                now + 0.3
-            );
+                oscillator.connect(gain);
 
-            gain3.gain.linearRampToValueAtTime(
-                0.2,
-                now + 0.35
-            );
-
-            gain3.gain.exponentialRampToValueAtTime(
-                0.001,
-                now + 1.2
-            );
+                gain.connect(
+                    audioContext.destination
+                );
 
 
-            oscillator3.connect(gain3);
+                oscillator.start(
+                    now + note.time
+                );
 
-            gain3.connect(audioContext.destination);
 
+                oscillator.stop(
+                    now +
+                    note.time +
+                    note.duration
+                );
 
-            oscillator3.start(now + 0.3);
-
-            oscillator3.stop(now + 1.2);
-
+            });
 
         } catch (error) {
 
