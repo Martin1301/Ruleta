@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ruleta Dayana <3</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #fffafa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #555;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 1100px;
+            min-height: 700px;
+            padding: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* =========================
+           PANTALLAS
+        ========================= */
+
+        .screen {
+            width: 100%;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* =========================
+           LOGIN
+        ========================= */
+
+        .login-card,
+        .setup-card {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .login-card h1,
+        .setup-card h1 {
+            color: #ef8b91;
+            margin-bottom: 10px;
+        }
+
+        .login-card p,
+        .setup-card p {
+            color: #999;
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 18px;
+            border: 2px solid #f3d2d5;
+            border-radius: 12px;
+            outline: none;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: #ef8b91;
+            box-shadow: 0 0 0 4px rgba(239, 139, 145, 0.1);
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .primary-btn {
+            background: #ef8b91;
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: #e97980;
+            transform: translateY(-2px);
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        /* =========================
+           TEMAS
+        ========================= */
+
+        #topicsContainer {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .topic-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .topic-number {
+            min-width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f7b5b9;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .topic-row input {
+            margin: 0;
+        }
+
+        /* =========================
+           RUEDA
+        ========================= */
+
+        .game-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .top-bar {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .title {
+            color: #ed858b;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .timer-box {
+            background: #ef6e78;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(239, 110, 120, 0.25);
+            text-align: center;
+        }
+
+        .timer-label {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 3px;
+        }
+
+        #timer {
+            font-family: "Courier New", monospace;
+            font-size: 30px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .wheel-area {
+            position: relative;
+            width: 520px;
+            height: 520px;
+            max-width: 85vw;
+            max-height: 85vw;
+        }
+
+        /* Punta superior */
+
+        .pointer {
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 55px solid #ef858b;
+        }
+
+        .pointer::before {
+            content: "";
+            position: absolute;
+            width: 24px;
+            height: 12px;
+            background: #ef858b;
+            top: -55px;
+            left: -12px;
+        }
+
+        .wheel {
+            position: absolute;
+            inset: 20px;
+            border-radius: 50%;
+            border: 10px solid #ef858b;
+            overflow: hidden;
+            background: #f9cccc;
+            box-shadow:
+                0 10px 20px rgba(0, 0, 0, 0.08),
+                inset 0 0 0 2px rgba(255,255,255,0.5);
+
+            transition: transform 1s ease;
+        }
+
+        .wheel-segments {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+        }
+
+        .segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            left: 50%;
+            top: 50%;
+            transform-origin: 0% 0%;
+            border-right: 1px solid rgba(255,255,255,0.5);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* Centro */
+
+        .center {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            background: #ef858b;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.4);
+        }
+
+        /* =========================
+           TEXTOS DE LA RULETA
+        ========================= */
+
+        .topic-label {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform-origin: center;
+            width: 120px;
+            text-align: center;
+            color: #ef858b;
+            font-weight: bold;
+            font-size: 15px;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* =========================
+           CONTROLES
+        ========================= */
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #startButton {
+            min-width: 180px;
+            font-size: 18px;
+            padding: 15px 35px;
+        }
+
+        .status {
+            margin-top: 15px;
+            color: #999;
+            font-size: 15px;
+            text-align: center;
+        }
+
+        .phase {
+            font-weight: bold;
+            color: #ed858b;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 650px) {
+
+            .app {
+                padding: 20px;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .title {
+                font-size: 23px;
+            }
+
+            .wheel-area {
+                width: 400px;
+                height: 400px;
+            }
+
+            #timer {
+                font-size: 25px;
+            }
+
+            .topic-label {
+                width: 90px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =========================
+         LOGIN
+    ========================== -->
+
+    <section id="loginScreen" class="screen">
+
+        <div class="login-card">
+
+            <h1>🎡 Ruleta de Temas</h1>
+
+            <p>
+                Ingresa la contraseña para comenzar.
+            </p>
+
+            <input
+                type="password"
+                id="passwordInput"
+                placeholder="Contraseña"
+                autocomplete="off"
+            >
+
+            <button
+                class="primary-btn"
+                onclick="verifyPassword()"
+            >
+                Ingresar
+            </button>
+
+            <div id="loginError" class="error"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         CONFIGURACIÓN
+    ========================== -->
+
+    <section id="setupScreen" class="screen hidden">
+
+        <div class="setup-card">
+
+            <h1>🎯 Configurar temas</h1>
+
+            <p>
+                ¿Cuántos temas quieres agregar a la ruleta?
+            </p>
+
+            <input
+                type="number"
+                id="topicCount"
+                min="1"
+                max="20"
+                placeholder="Ejemplo: 8"
+            >
+
+            <button
+                class="primary-btn"
+                onclick="createTopicInputs()"
+            >
+                Continuar
+            </button>
+
+            <div id="topicsContainer"></div>
+
+            <button
+                id="prepareButton"
+                class="primary-btn hidden"
+                onclick="prepareGame()"
+            >
+                Preparar ruleta
+            </button>
+
+            <div id="setupError" class="error"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         JUEGO
+    ========================== -->
+
+    <section id="gameScreen" class="screen hidden">
+
+        <div class="game-container">
+
+            <div class="top-bar">
+
+                <div class="title">
+                    🎡 Ruleta de Temas
+                </div>
+
+                <div class="timer-box">
+
+                    <div class="timer-label">
+                        TIEMPO
+                    </div>
+
+                    <div id="timer">
+                        10:00
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="wheel-area">
+
+                <div class="pointer"></div>
+
+                <div
+                    id="wheel"
+                    class="wheel"
+                >
+
+                    <div
+                        id="wheelSegments"
+                        class="wheel-segments"
+                    ></div>
+
+                    <div
+                        id="topicLabels"
+                    ></div>
+
+                    <div class="center"></div>
+
+                </div>
+
+            </div>
+
+
+            <div class="controls">
+
+                <button
+                    id="startButton"
+                    class="primary-btn"
+                    onclick="startCycle()"
+                >
+                    Iniciar
+                </button>
+
+            </div>
+
+
+            <div class="status">
+
+                Estado:
+                <span
+                    id="statusText"
+                    class="phase"
+                >
+                    Preparado
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+
+    /* =====================================================
+       CONFIGURACIÓN
+    ===================================================== */
+
+    const PASSWORD = "<3";
+
+    const STUDY_TIME = 10 * 60;
+
+    const BREAK_TIME = 2 * 60;
+
+
+    let topics = [];
+
+    let currentTime = STUDY_TIME;
+
+    let timerInterval = null;
+
+    let currentPhase = "study";
+
+    let running = false;
+
+
+    /* =====================================================
+       ELEMENTOS
+    ===================================================== */
+
+    const loginScreen =
+        document.getElementById("loginScreen");
+
+    const setupScreen =
+        document.getElementById("setupScreen");
+
+    const gameScreen =
+        document.getElementById("gameScreen");
+
+    const timerElement =
+        document.getElementById("timer");
+
+    const statusText =
+        document.getElementById("statusText");
+
+    const startButton =
+        document.getElementById("startButton");
+
+    const wheel =
+        document.getElementById("wheel");
+
+    const wheelSegments =
+        document.getElementById("wheelSegments");
+
+    const topicLabels =
+        document.getElementById("topicLabels");
+
+
+    /* =====================================================
+       CONTRASEÑA
+    ===================================================== */
+
+    function verifyPassword() {
+
+        const password =
+            document.getElementById("passwordInput").value;
+
+        const error =
+            document.getElementById("loginError");
+
+
+        if (password === PASSWORD) {
+
+            error.textContent = "";
+
+            loginScreen.classList.add("hidden");
+
+            setupScreen.classList.remove("hidden");
+
+        } else {
+
+            error.textContent =
+                "Contraseña incorrecta.";
+
+        }
+
+    }
+
+
+    /* Enter para contraseña */
+
+    document
+        .getElementById("passwordInput")
+        .addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter") {
+
+                verifyPassword();
+
+            }
+
+        });
+
+
+    /* =====================================================
+       CREAR INPUTS DE TEMAS
+    ===================================================== */
+
+    function createTopicInputs() {
+
+        const count =
+            parseInt(
+                document.getElementById("topicCount").value
+            );
+
+        const container =
+            document.getElementById("topicsContainer");
+
+        const prepareButton =
+            document.getElementById("prepareButton");
+
+        const error =
+            document.getElementById("setupError");
+
+
+        container.innerHTML = "";
+
+        error.textContent = "";
+
+        prepareButton.classList.add("hidden");
+
+
+        if (
+            isNaN(count) ||
+            count < 1 ||
+            count > 20
+        ) {
+
+            error.textContent =
+                "Ingresa una cantidad entre 1 y 20.";
+
+            return;
+
+        }
+
+
+        for (let i = 0; i < count; i++) {
+
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "topic-row";
+
+
+            const number =
+                document.createElement("div");
+
+            number.className =
+                "topic-number";
+
+            number.textContent =
+                i + 1;
+
+
+            const input =
+                document.createElement("input");
+
+            input.type = "text";
+
+            input.className = "topic-input";
+
+            input.placeholder =
+                `Tema ${i + 1}`;
+
+            input.autocomplete = "off";
+
+
+            row.appendChild(number);
+
+            row.appendChild(input);
+
+            container.appendChild(row);
+
+        }
+
+
+        prepareButton.classList.remove("hidden");
+
+    }
+
+
+    /* =====================================================
+       PREPARAR JUEGO
+    ===================================================== */
+
+    function prepareGame() {
+
+        const inputs =
+            document.querySelectorAll(".topic-input");
+
+        const error =
+            document.getElementById("setupError");
+
+
+        topics = [];
+
+
+        inputs.forEach(input => {
+
+            const value =
+                input.value.trim();
+
+            if (value !== "") {
+
+                topics.push(value);
+
+            }
+
+        });
+
+
+        if (topics.length !== inputs.length) {
+
+            error.textContent =
+                "Debes ingresar todos los temas.";
+
+            return;
+
+        }
+
+
+        error.textContent = "";
+
+
+        createWheel();
+
+
+        setupScreen.classList.add("hidden");
+
+        gameScreen.classList.remove("hidden");
+
+
+        resetTimer();
+
+    }
+
+
+    /* =====================================================
+       CREAR RULETA
+    ===================================================== */
+
+    function createWheel() {
+
+        wheelSegments.innerHTML = "";
+
+        topicLabels.innerHTML = "";
+
+
+        const count =
+            topics.length;
+
+
+        const colors = [
+            "#f7c8ca",
+            "#fce3df"
+        ];
+
+
+        /*
+         * Creamos los segmentos utilizando
+         * un conic-gradient.
+         */
+
+        const segmentSize =
+            360 / count;
+
+
+        let gradient = "";
+
+
+        for (let i = 0; i < count; i++) {
+
+            const start =
+                i * segmentSize;
+
+            const end =
+                (i + 1) * segmentSize;
+
+            gradient +=
+                `${colors[i % 2]} ${start}deg ${end}deg`;
+
+            if (i < count - 1) {
+                gradient += ", ";
+            }
+
+        }
+
+
+        wheel.style.background =
+            `conic-gradient(from -90deg, ${gradient})`;
+
+
+        /*
+         * Colocamos los nombres
+         * alrededor de la rueda.
+         */
+
+        topics.forEach((topic, index) => {
+
+            const label =
+                document.createElement("div");
+
+            label.className =
+                "topic-label";
+
+            label.textContent =
+                topic;
+
+
+            const angle =
+                index * segmentSize +
+                segmentSize / 2 -
+                90;
+
+
+            const radius =
+                topics.length <= 8
+                    ? 155
+                    : 165;
+
+
+            const radians =
+                angle * Math.PI / 180;
+
+
+            const x =
+                Math.cos(radians) * radius;
+
+
+            const y =
+                Math.sin(radians) * radius;
+
+
+            label.style.left =
+                `calc(50% + ${x}px)`;
+
+            label.style.top =
+                `calc(50% + ${y}px)`;
+
+
+            label.style.transform =
+                `translate(-50%, -50%) rotate(${angle + 90}deg)`;
+
+
+            topicLabels.appendChild(label);
+
+        });
+
+    }
+
+
+    /* =====================================================
+       FORMATO DEL TEMPORIZADOR
+    ===================================================== */
+
+    function formatTime(seconds) {
+
+        const minutes =
+            Math.floor(seconds / 60);
+
+        const secs =
+            seconds % 60;
+
+
+        return (
+            String(minutes).padStart(2, "0")
+            +
+            ":"
+            +
+            String(secs).padStart(2, "0")
+        );
+
+    }
+
+
+    function updateTimer() {
+
+        timerElement.textContent =
+            formatTime(currentTime);
+
+    }
+
+
+    /* =====================================================
+       INICIAR CICLO
+    ===================================================== */
+
+    function startCycle() {
+
+        if (running) {
+            return;
+        }
+
+
+        running = true;
+
+        startButton.disabled = true;
+
+        startButton.style.opacity = "0.5";
+
+
+        currentPhase = "study";
+
+        currentTime = STUDY_TIME;
+
+
+        statusText.textContent =
+            "Estudiando";
+
+
+        updateTimer();
+
+
+        /*
+         * Animación de la ruleta.
+         */
+
+        spinWheel();
+
+
+        startTimer();
+
+    }
+
+
+    /* =====================================================
+       TEMPORIZADOR
+    ===================================================== */
+
+    function startTimer() {
+
+        clearInterval(timerInterval);
+
+
+        timerInterval =
+            setInterval(() => {
+
+                currentTime--;
+
+                updateTimer();
+
+
+                if (currentTime <= 0) {
+
+                    clearInterval(timerInterval);
+
+                    timerFinished();
+
+                }
+
+            }, 1000);
+
+    }
+
+
+    /* =====================================================
+       FINALIZÓ TEMPORIZADOR
+    ===================================================== */
+
+    function timerFinished() {
+
+        playPleasantSound();
+
+
+        if (currentPhase === "study") {
+
+            /*
+             * Terminó los 10 minutos.
+             * Ahora mostramos el botón Iniciar
+             * para comenzar los 2 minutos.
+             */
+
+            currentPhase = "break";
+
+            currentTime = BREAK_TIME;
+
+
+            statusText.textContent =
+                "¡10 minutos terminados!";
+
+
+            timerElement.textContent =
+                formatTime(BREAK_TIME);
+
+
+            startButton.disabled = false;
+
+            startButton.style.opacity = "1";
+
+            startButton.textContent =
+                "Iniciar";
+
+            startButton.onclick =
+                startBreak;
+
+
+        } else {
+
+            /*
+             * Terminó los 2 minutos.
+             * Todo vuelve a comenzar.
+             */
+
+            currentPhase = "study";
+
+            currentTime = STUDY_TIME;
+
+            running = false;
+
+
+            statusText.textContent =
+                "¡Descanso terminado!";
+
+
+            timerElement.textContent =
+                formatTime(STUDY_TIME);
+
+
+            startButton.disabled = false;
+
+            startButton.style.opacity = "1";
+
+            startButton.textContent =
+                "Iniciar";
+
+            startButton.onclick =
+                startCycle;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       INICIAR DESCANSO
+    ===================================================== */
+
+    function startBreak() {
+
+        if (running) {
+            return;
+        }
+
+
+        running = true;
+
+        startButton.disabled = true;
+
+        startButton.style.opacity = "0.5";
+
+
+        currentTime = BREAK_TIME;
+
+
+        statusText.textContent =
+            "Descanso";
+
+
+        updateTimer();
+
+
+        startTimer();
+
+    }
+
+
+    /* =====================================================
+       REINICIAR TEMPORIZADOR
+    ===================================================== */
+
+    function resetTimer() {
+
+        clearInterval(timerInterval);
+
+        currentPhase = "study";
+
+        currentTime = STUDY_TIME;
+
+        running = false;
+
+
+        updateTimer();
+
+
+        statusText.textContent =
+            "Preparado";
+
+
+        startButton.disabled = false;
+
+        startButton.style.opacity = "1";
+
+        startButton.textContent =
+            "Iniciar";
+
+        startButton.onclick =
+            startCycle;
+
+    }
+
+
+    /* =====================================================
+       ANIMACIÓN DE RULETA
+    ===================================================== */
+
+    function spinWheel() {
+
+        const randomRotation =
+            360 * 5 +
+            Math.floor(Math.random() * 360);
+
+
+        wheel.style.transform =
+            `rotate(${randomRotation}deg)`;
+
+    }
+
+
+    /* =====================================================
+       SONIDO AGRADABLE
+    ===================================================== */
+
+    function playPleasantSound() {
+
+        try {
+
+            const AudioContext =
+                window.AudioContext ||
+                window.webkitAudioContext;
+
+
+            const audioContext =
+                new AudioContext();
+
+
+            const now =
+                audioContext.currentTime;
+
+
+            /*
+             * Primera nota
+             */
+
+            const oscillator1 =
+                audioContext.createOscillator();
+
+            const gain1 =
+                audioContext.createGain();
+
+
+            oscillator1.type =
+                "sine";
+
+            oscillator1.frequency.setValueAtTime(
+                523.25,
+                now
+            );
+
+
+            gain1.gain.setValueAtTime(
+                0,
+                now
+            );
+
+            gain1.gain.linearRampToValueAtTime(
+                0.25,
+                now + 0.05
+            );
+
+            gain1.gain.exponentialRampToValueAtTime(
+                0.001,
+                now + 0.8
+            );
+
+
+            oscillator1.connect(gain1);
+
+            gain1.connect(audioContext.destination);
+
+
+            oscillator1.start(now);
+
+            oscillator1.stop(now + 0.8);
+
+
+            /*
+             * Segunda nota
+             */
+
+            const oscillator2 =
+                audioContext.createOscillator();
+
+            const gain2 =
+                audioContext.createGain();
+
+
+            oscillator2.type =
+                "sine";
+
+            oscillator2.frequency.setValueAtTime(
+                659.25,
+                now + 0.15
+            );
+
+
+            gain2.gain.setValueAtTime(
+                0,
+                now + 0.15
+            );
+
+            gain2.gain.linearRampToValueAtTime(
+                0.22,
+                now + 0.2
+            );
+
+            gain2.gain.exponentialRampToValueAtTime(
+                0.001,
+                now + 1.0
+            );
+
+
+            oscillator2.connect(gain2);
+
+            gain2.connect(audioContext.destination);
+
+
+            oscillator2.start(now + 0.15);
+
+            oscillator2.stop(now + 1.0);
+
+
+            /*
+             * Tercera nota
+             */
+
+            const oscillator3 =
+                audioContext.createOscillator();
+
+            const gain3 =
+                audioContext.createGain();
+
+
+            oscillator3.type =
+                "sine";
+
+            oscillator3.frequency.setValueAtTime(
+                783.99,
+                now + 0.3
+            );
+
+
+            gain3.gain.setValueAtTime(
+                0,
+                now + 0.3
+            );
+
+            gain3.gain.linearRampToValueAtTime(
+                0.2,
+                now + 0.35
+            );
+
+            gain3.gain.exponentialRampToValueAtTime(
+                0.001,
+                now + 1.2
+            );
+
+
+            oscillator3.connect(gain3);
+
+            gain3.connect(audioContext.destination);
+
+
+            oscillator3.start(now + 0.3);
+
+            oscillator3.stop(now + 1.2);
+
+
+        } catch (error) {
+
+            console.log(
+                "No se pudo reproducir el sonido:",
+                error
+            );
+
+        }
+
+    }
+
+</script>
+
+</body>
+</html>
